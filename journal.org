@@ -18,7 +18,7 @@ Makefile to compile it.
 This is where raw experimental data should go. Each directory entry
 comprises a set of experiments and the directory name is based on the
 machine name and on the date. For example:
-#+begin_src sh :results output :exports both 
+#+begin_src sh :results output :exports both
 echo mkdir data/`hostname`_`date +%F`
 #+end_src
 
@@ -29,14 +29,14 @@ echo mkdir data/`hostname`_`date +%F`
 ** Compilation
 A simple makefile with various compilation options is provided in the
 src/ directory. Compilation is thus done by running the following command:
-#+begin_src sh :results output :exports both 
+#+begin_src sh :results output :exports both
 make -C src/
 #+end_src
 
 #+RESULTS:
 : make: Entering directory '/home/alegrand/Work/Documents/Enseignements/M2R_Eval_Perf_13/M2R-ParallelQuicksort/src'
 : cc   -g -Wall -Wshadow -Wcast-align -Waggregate-return -Wmissing-prototypes -Wmissing-declarations -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wmissing-noreturn -Wpointer-arith -Wwrite-strings -finline-functions -O0 -pthread -lrt -std=c99  -c -o parallelQuicksort.o parallelQuicksort.c
-: cc   -g -Wall -Wshadow -Wcast-align -Waggregate-return -Wmissing-prototypes -Wmissing-declarations -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wmissing-noreturn -Wpointer-arith -Wwrite-strings -finline-functions -O0 -pthread -lrt -std=c99  parallelQuicksort.o  -o parallelQuicksort 
+: cc   -g -Wall -Wshadow -Wcast-align -Waggregate-return -Wmissing-prototypes -Wmissing-declarations -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wmissing-noreturn -Wpointer-arith -Wwrite-strings -finline-functions -O0 -pthread -lrt -std=c99  parallelQuicksort.o  -o parallelQuicksort
 : make: Leaving directory '/home/alegrand/Work/Documents/Enseignements/M2R_Eval_Perf_13/M2R-ParallelQuicksort/src'
 
 ** Running the code
@@ -61,13 +61,13 @@ Times are reported in seconds.
   this piece of code for educational purposes.
 - Here is a typical first execution on my laptop (an Intel(R) Core(TM)
   i7 running a Debian with Linux 3.14.15):
-  #+begin_src sh :results output :exports both 
+  #+begin_src sh :results output :exports both
     ./src/quicksort
   #+end_src
 
   #+RESULTS:
   : Sequential quicksort took: 0.231571 sec.
-  : at loc 506315, 5.068226e-01 < 5.068269e-01 
+  : at loc 506315, 5.068226e-01 < 5.068269e-01
   : Oops, lyst did not get sorted by parallelQuicksort.
   : Parallel quicksort took: 0.161259 sec.
   : Built-in qsort took: 0.241568 sec.
@@ -79,7 +79,7 @@ Times are reported in seconds.
   code and thanks to valgrind and gdb, I could find what was wrong. I
   also renamed the file so that compiling is more convenient. This
   fixed the previous warning message so now everything seems fine:
-  #+begin_src sh :results output :exports both 
+  #+begin_src sh :results output :exports both
     ./src/parallelQuicksort
   #+end_src
 
@@ -89,7 +89,7 @@ Times are reported in seconds.
   : Built-in quicksort took: 0.244716 sec.
 
 *** First series of experiments
-Let's try to see how the three algorithms behave when changing the 
+Let's try to see how the three algorithms behave when changing the
 array size. Since one measurement is not enough, I run the code 5
 times in a row.
 #+begin_src sh foo :results output :exports both :tangle scripts/run_benchmarking.sh
@@ -121,17 +121,17 @@ Here is a simple script to parse the results:
       if($line =~/^Size: ([\d\.]*)$/) {
           $size = $1;
           next;
-      } 
+      }
       if($line =~/^(.*) quicksort.*: ([\d\.]*) sec.$/) {
           print "$size, \"$1\", $2\n" ;
           next;
-      } 
+      }
   }
 #+end_src
 
 I can then simply parse my data with the following command:
 
-#+begin_src sh :results output :exports both 
+#+begin_src sh :results output :exports both
 perl scripts/csv_quicksort_extractor.pl < data/sama_2014-10-13/measurements_03\:47.txt > data/sama_2014-10-13/measurements_03\:47.csv
 #+end_src
 
@@ -161,26 +161,26 @@ So let's try to parse in an other way and use gnuplot:
       if($line =~/^Size: ([\d\.]*)$/) {
           $size = $1;
           next;
-      } 
+      }
       if($line =~/^Sequential quicksort.*: ([\d\.]*) sec.$/) {
           $seq=$1; next;
-      } 
+      }
       if($line =~/^Parallel quicksort.*: ([\d\.]*) sec.$/) {
           $par=$1; next;
-      } 
+      }
       if($line =~/^Built-in quicksort.*: ([\d\.]*) sec.$/) {
-          $libc=$1; 
+          $libc=$1;
           print "$size, $seq, $pqr, $libc\n";
           next;
       }
   }
 #+end_src
 
-#+begin_src sh :results output raw :exports both 
+#+begin_src sh :results output raw :exports both
   FILENAME="data/sama_2014-10-13/measurements_03:47"
   perl scripts/csv_quicksort_extractor2.pl < "$FILENAME.txt" > "${FILENAME}_wide.csv"
   echo "
-    set terminal png size 600,400 
+    set terminal png size 600,400
     set output '${FILENAME}_wide.png'
     set datafile separator ','
     set key autotitle columnhead
@@ -195,3 +195,158 @@ So let's try to parse in an other way and use gnuplot:
 Well, I'm not sure it is nicer but I have lines. A first crude
 analysis seems to reveal the the parallel version is worth it for
 arrays larger than 400000.
+** 2015-08-19
+This entry was writen by Juliano Bittencorut
+<juliano.bittencourt@gmail.com> as part of an exercise for the 2015/2
+SMPE class at UFRGS/Brazil.
+
+*** Initial code install
+- I obtained the code by cloning Arnaud Legrand's git repo at github in my local machine,
+  as part of the SMPE/UFRGS course exercise.
+  https://github.com/alegrand/M2R-ParallelQuicksort
+- I'll run the experiments on my laptop, a Late 2008 MacBook
+  Pro. System Overview
+
+   #+BEGIN_SRC sh :results output
+   uname -a
+   #+End_SRC
+
+   #+RESULTS:
+   : Darwin Julianos-MacBook-Pro.local 14.5.0 Darwin Kernel Version 14.5.0: Wed Jul 29 02:26:53 PDT 2015; root:xnu-2782.40.9~1/RELEASE_X86_64 x86_64
+
+   #+BEGIN_SRC sh :results output
+   sw_vers
+   #+END_SRC
+
+   #+RESULTS:
+   : ProductName:	Mac OS X
+   : ProductVersion:	10.10.5
+   : BuildVersion:	14F27
+
+   #+BEGIN_SRC sh :results output
+     system_profiler SPHardwareDataType
+   #+END_SRC
+
+   #+RESULTS:
+   #+begin_example
+   Hardware:
+
+       Hardware Overview:
+
+         Model Name: MacBook Pro
+         Model Identifier: MacBookPro5,1
+         Processor Name: Intel Core 2 Duo
+         Processor Speed: 2,4 GHz
+         Number of Processors: 1
+         Total Number of Cores: 2
+         L2 Cache: 3 MB
+         Memory: 8 GB
+         Bus Speed: 1,07 GHz
+         Boot ROM Version: MBP51.007E.B00
+         SMC Version (system): 1.41f2
+         Serial Number (system): W89203HD8Q1
+         Hardware UUID: 8406B003-DA62-5F30-BF66-69D863570F45
+         Sudden Motion Sensor:
+             State: Enabled
+
+#+end_example
+
+
+- Since I've recently reinstalled my OS, I needed to reinstall Xcode 5
+  and Xcode command line tools:
+
+  #+BEGIN_SRC
+  xcode-select --install
+  #+END_SRC
+
+
+- First step was to take to compile the code in my machine. But when I
+  ran make got a complaining about librt.
+
+   #+BEGIN_SRC sh :results output :export both
+     make -C src
+   #+End_SRC
+
+   #+RESULTS:
+   : clang:   warning: argument unused during compilation: '-pthread'
+   : ld:      library not found for -lrt
+   : clang: error: linker command failed with exit code 1 (use -v to see invocation)
+   : make: *** [parallelQuicksort] Error 1
+
+- Removed the librt from CFLAGS in the Makefile and tried to compile
+  again. Apparently everything went smootly. Hope things don't start segfaulting.
+
+  #+BEGIN_SRC sh :results output
+    make -C src
+  #+END_SRC
+
+  #+RESULTS:
+  : cc   -g -Wall -Wshadow -Wcast-align -Waggregate-return -Wmissing-prototypes -Wmissing-declarations -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wmissing-noreturn -Wpointer-arith -Wwrite-strings -finline-functions -O0 -pthread  -std=c99 parallelQuicksort.o  -o parallelQuicksort
+
+- I've tried to run the code. Aparently things went ok, with the
+  parallel verions running slithly faster. Considering that I have a 2
+  core machine, I didn't expected a lot of improvment.
+
+   #+begin_src sh :results output :exports both
+     ./src/parallelQuicksort
+   #+end_src
+
+   #+RESULTS:
+   : Sequential quicksort took: 0.437233 sec.
+   : Parallel quicksort took: 0.494957 sec.
+   : Built-in quicksort took: 0.559151 sec.
+
+*** First set os experiments
+My intention is to replicate Arnaud Legrand experiment on my
+laptop. The experiments details can be found on the 2014-10-13 entry
+on this journal.
+
+My initial hyphotesis is that I'm going to find results that are much
+slower than Arnaund experiment. I also expect to see a slighly better
+perfomance of the parallel version over the procedural one.
+
+#+begin_src sh foo :results output :exports both :tangle scripts/run_benchmarking.sh
+  OUTPUT_DIRECTORY=data/`hostname`_`date +%F`
+  mkdir -p $OUTPUT_DIRECTORY
+  OUTPUT_FILE=$OUTPUT_DIRECTORY/measurements_`date +%R`.txt
+
+  touch $OUTPUT_FILE
+  for i in 100 1000 10000 100000 1000000; do
+      for rep in `seq 1 5`; do
+          echo "Size: $i" >> $OUTPUT_FILE;
+          ./src/parallelQuicksort $i >> $OUTPUT_FILE;
+      done ;
+  done
+#+end_src
+
+The output file can be viewed [[file:data/Julianos-MacBook-Pro.local_2015-08-19/measurements_20:12.txt][here]].
+
+I used Arnaund script to parse the data.
+
+#+BEGIN_SRC sh :results output
+perl scripts/csv_quicksort_extractor.pl < data/Julianos-MacBook-Pro.local_2015-08-19/measurements_20:12.txt > data/Julianos-MacBook-Pro.local_2015-08-19/measurements_20:12.csv
+#+END_SRC
+
+#+RESULTS:
+
+To plot the data I've changed the original script in order to get a
+niver plot with ggplot2
+
+#+begin_src R :results output graphics :file data/Julianos-MacBook-Pro.local_2015-08-19/measurements_20:12.png :exports both :width 600 :height 400 :session
+  library(ggplot2)
+  df <- read.csv("data/Julianos-MacBook-Pro.local_2015-08-19/measurements_20:12.csv",header=T)
+  plot1 <- ggplot(df,aes(x=Size,y=Time,shape=Type)) + geom_point(aes(color=Type,show_guide=FALSE))
+  print(plot1)
+#+end_src
+
+#+RESULTS:
+[[file:data/Julianos-MacBook-Pro.local_2015-08-19/measurements_20:12.png]]
+
+It's interesting o to observe that in my system the parallel version
+is always slower. Sometimes it's way slower than the sequential or
+buildin version. That diffrent from what I've expected. Since I'm
+running this on my personal laptop, with other applications running
+that might be using the CPU, it's possible that the overhead caused by
+the parallel version impacted the results.
+
+
